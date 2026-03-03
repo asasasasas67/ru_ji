@@ -5,135 +5,140 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>入機電競介紹</title>
     <style>
+        /* ==========================================
+           參數調整區：控制動畫與視覺效果
+           ========================================== */
         :root {
-            --pink: #ffafbd;
-            --blue: #2193b0;
-            --neon-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px var(--pink), 0 0 30px var(--blue);
+            /* 背景 */
+            --bg-angle: 135deg;
+            --bg-pink: #ffafbd;
+            --bg-blue: #2193b0;
+
+            /* 霓虹燈閃爍參數 */
+            --neon-flicker-speed: 2s;      /* 閃爍循環時間 */
+            --neon-glow-intensity: 30px;    /* 霓虹發光範圍 */
+
+            /* 流動隔線參數 */
+            --line-flow-speed: 3s;          /* 線條流動速度 */
+            --line-height: 2px;             /* 線條粗細 */
+            --line-color-start: transparent;
+            --line-color-mid: rgba(255, 255, 255, 0.8);
+            --line-color-end: transparent;
+
+            /* GUI 與 文字 */
+            --gui-bg: rgba(240, 240, 240, 0.4);
+            --gui-blur: 15px;
+            --title-size: 2.5rem;
+            --gold-color: #ffd700;
+            --devil-start: #000000;
+            --devil-end: #ff0000;
+            --text-grad-start: #1A237E;
+            --text-grad-end: #7B1FA2;
         }
 
+        /* ==========================================
+           核心樣式
+           ========================================== */
         body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
+            margin: 0; padding: 0; height: 100%;
             font-family: 'Microsoft JhengHei', sans-serif;
-            overflow-x: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            /* 粉左上，藍右下霧面背景 */
-            background: linear-gradient(135deg, var(--pink), var(--blue));
+            background: linear-gradient(var(--bg-angle), var(--bg-pink), var(--bg-blue));
             background-attachment: fixed;
+            display: flex; justify-content: center; align-items: center;
+            overflow-x: hidden;
         }
 
         /* 流星特效 */
-        .night {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            transform: rotateZ(45deg);
-            z-index: 0;
-        }
-
+        .night { position: fixed; width: 100%; height: 100%; transform: rotateZ(45deg); z-index: 0; }
         .shooting_star {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            height: 2px;
-            background: linear-gradient(-45deg, rgba(255,255,255,1), rgba(0,0,255,0));
-            border-radius: 999px;
-            filter: drop-shadow(0 0 6px rgba(255,255,255,1));
-            animation: tail 3000ms ease-in-out infinite, shooting 3000ms ease-in-out infinite;
+            position: absolute; height: 2px; background: linear-gradient(-45deg, white, rgba(0,0,255,0));
+            border-radius: 999px; filter: drop-shadow(0 0 6px white);
+            animation: tail 3s ease-in-out infinite, shooting 3s ease-in-out infinite;
         }
-
         @keyframes tail { 0% { width: 0; } 30% { width: 100px; } 100% { width: 0; } }
         @keyframes shooting { 0% { transform: translateX(0); } 100% { transform: translateX(300px); } }
-
-        /* 生成多個流星 */
         .shooting_star:nth-child(1) { top: 10%; left: 20%; animation-delay: 0s; }
-        .shooting_star:nth-child(2) { top: 30%; left: 50%; animation-delay: 1.5s; }
-        .shooting_star:nth-child(3) { top: 70%; left: 10%; animation-delay: 2.5s; }
-        .shooting_star:nth-child(4) { top: 50%; left: 80%; animation-delay: 4s; }
+        .shooting_star:nth-child(2) { top: 50%; left: 70%; animation-delay: 1.5s; }
 
-        /* 霧面 GUI 容器 */
+        /* 霧面 GUI */
         .gui-container {
-            position: relative;
-            z-index: 10;
-            width: 90%;
-            max-width: 600px;
-            max-height: 85vh;
-            background: rgba(240, 240, 240, 0.4);
-            backdrop-filter: blur(15px);
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            position: relative; z-index: 10;
+            width: 90%; max-width: 600px; max-height: 90vh;
+            background: var(--gui-bg); backdrop-filter: blur(var(--gui-blur));
+            border-radius: 20px; padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
             border: 1px solid rgba(255, 255, 255, 0.3);
-            overflow-y: auto;
-            color: #333;
-            text-align: center;
+            overflow-y: auto; text-align: center;
         }
 
-        /* 標題霓虹燈效果 */
+        /* 霓虹燈閃爍標題 */
         .main-title {
-            font-size: 2.5em;
-            font-weight: bold;
-            color: #fff;
-            text-shadow: var(--neon-shadow);
-            margin-bottom: 20px;
-            letter-spacing: 5px;
+            font-size: var(--title-size); font-weight: bold; color: #fff;
+            margin-bottom: 20px; letter-spacing: 5px;
+            animation: flicker var(--neon-flicker-speed) infinite alternate;
         }
 
-        /* 價目表大標題 */
+        @keyframes flicker {
+            0%, 18%, 22%, 25%, 53%, 57%, 100% {
+                text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px var(--bg-pink), 0 0 var(--neon-glow-intensity) var(--bg-blue);
+            }
+            20%, 24%, 55% {
+                text-shadow: none;
+                opacity: 0.8;
+            }
+        }
+
+        /* 流線隔線 */
+        .stream-line {
+            width: 100%;
+            height: var(--line-height);
+            margin: 20px 0;
+            position: relative;
+            background: rgba(255, 255, 255, 0.1); /* 底線微弱可見 */
+            overflow: hidden;
+            border-radius: 10px;
+        }
+
+        .stream-line::after {
+            content: "";
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, var(--line-color-start), var(--line-color-mid), var(--line-color-end));
+            animation: flow var(--line-flow-speed) linear infinite;
+        }
+
+        @keyframes flow {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        /* 內容字體樣式 */
         .price-list-title {
-            background: linear-gradient(to bottom, #1e3c72, #2a5298);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-size: 1.8em;
-            margin-top: 10px;
+            background: linear-gradient(to bottom, var(--text-grad-start), var(--text-grad-end));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            font-size: 1.8rem; font-weight: bold;
         }
-
-        /* 金牌打手 (金色螢光) */
         .gold-title {
-            color: #ffd700;
-            text-shadow: 0 0 10px #fff700, 0 0 20px #ffcc00;
-            font-size: 1.5em;
-            margin: 20px 0;
+            color: var(--gold-color); font-size: 1.5rem; font-weight: bold;
+            text-shadow: 0 0 10px #ffcc00; margin: 15px 0;
         }
-
-        /* 魔王護 (紅黑漸層) */
         .devil-title {
-            background: linear-gradient(to right, #000000, #ff0000);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-size: 1.5em;
-            font-weight: 900;
-            margin: 20px 0;
+            background: linear-gradient(to right, var(--devil-start), var(--devil-end));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            font-size: 1.5rem; font-weight: 900; margin: 15px 0;
         }
-
-        /* 內容字體 (深藍紫漸層) */
         .content-text {
-            background: linear-gradient(45deg, #1A237E, #7B1FA2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: 600;
-            line-height: 1.8;
-            list-style: none;
-            padding: 0;
+            background: linear-gradient(45deg, var(--text-grad-start), var(--text-grad-end));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            font-weight: 600; list-style: none; padding: 0; margin: 5px 0; line-height: 1.6;
         }
-
         .highlight-box {
-            border-left: 4px solid #1A237E;
-            margin: 10px auto;
-            padding: 5px;
-            background: rgba(255, 255, 255, 0.2);
-            width: fit-content;
+            border-left: 4px solid var(--text-grad-start);
+            margin: 10px auto; padding: 5px 15px;
+            background: rgba(255, 255, 255, 0.2); width: fit-content;
         }
-
-        .footer-note {
-            font-size: 0.9em;
-            margin-top: 30px;
-            font-style: italic;
-            opacity: 0.8;
-        }
+        .footer-note { font-size: 0.85rem; margin-top: 30px; opacity: 0.8; font-style: italic; }
     </style>
 </head>
 <body>
@@ -141,46 +146,56 @@
     <div class="night">
         <div class="shooting_star"></div>
         <div class="shooting_star"></div>
-        <div class="shooting_star"></div>
-        <div class="shooting_star"></div>
     </div>
 
     <div class="gui-container">
         <div class="main-title">入機電競介紹</div>
         
-        <div class="price-list-title"> 入機電競價目表</div>
+        <div class="price-list-title">入機電競價目表</div>
 
-        <div class="gold-title"> 金牌打手</div>
+        <div class="stream-line"></div>
+
+        <div class="gold-title">金牌打手</div>
         <ul class="content-text">
             <li><strong>體驗單: 5</strong></li>
-            <li>普壩保底200萬</li>
+            <li>普壩保底 200 萬</li>
             <li>普壩清圖</li>
         </ul>
 
+        <div class="stream-line"></div>
+
         <ul class="content-text">
             <li><strong>抖音單: 10</strong></li>
-            <li>普壩保底400萬 / 機壩保底200萬</li>
-            <div class="highlight-box"> 老闆龜撤離滑抖音打手投餵 </div>
+            <li>普壩保底 400 萬 / 機壩保底 200 萬</li>
+            <div class="content-text"> 老闆龜撤離滑抖音打手投餵 </div>
         </ul>
 
-        <div class="devil-title"> 入機魔王護</div>
+        <div class="stream-line"></div>
+
+        <div class="devil-title">入機魔王護</div>
         <ul class="content-text">
             <li><strong>清圖單: 20</strong></li>
-            <li>普壩保底600萬</li>
+            <li>普壩保底 600 萬</li>
             <li>不清圖不撤</li>
         </ul>
 
+        <div class="stream-line"></div>
+
         <ul class="content-text">
             <li><strong>壓力單: 15</strong></li>
-            <li>普壩保底300萬</li>
+            <li>普壩保底 300 萬</li>
             <li>打手幫起裝給老闆打</li>
         </ul>
 
+        <div class="stream-line"></div>
+
         <ul class="content-text">
-            <li><strong>航天體驗單: 10/把</strong></li>
-            <li>機航保底100萬</li>
+            <li><strong>航天體驗單: 10 / 把</strong></li>
+            <li>機航保底 100 萬</li>
             <li>不幫帶大紅包</li>
         </ul>
+
+        <div class="stream-line"></div>
 
         <div class="footer-note content-text">
             入機電競打手有一切壓力老闆的權力，若老闆不服就受著
@@ -189,8 +204,3 @@
 
 </body>
 </html>
-
-
-
-
-
