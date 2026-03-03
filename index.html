@@ -6,34 +6,29 @@
     <title>入機電競介紹</title>
     <style>
         /* ==========================================
-           參數調整區：控制動畫與視覺效果
+           參數調整區
            ========================================== */
         :root {
-            /* 背景 */
+            /* 背景與主題色 */
             --bg-angle: 135deg;
             --bg-pink: #ffafbd;
             --bg-blue: #2193b0;
+            --title-color: #7B68EE; /* 你指定的標題顏色 */
 
-            /* 霓虹燈閃爍參數 */
-            --neon-flicker-speed: 2s;      /* 閃爍循環時間 */
-            --neon-glow-intensity: 30px;    /* 霓虹發光範圍 */
-
-            /* 流動隔線參數 */
-            --line-flow-speed: 3s;          /* 線條流動速度 */
-            --line-height: 2px;             /* 線條粗細 */
-            --line-color-start: transparent;
+            /* 霓虹燈與流線 */
+            --neon-flicker-speed: 2s;      
+            --line-flow-speed: 3s;          
             --line-color-mid: rgba(255, 255, 255, 0.8);
-            --line-color-end: transparent;
 
-            /* GUI 與 文字 */
-            --gui-bg: rgba(240, 240, 240, 0.4);
-            --gui-blur: 15px;
-            --title-size: 2.5rem;
+            /* 內容文字顏色 */
             --gold-color: #ffd700;
             --devil-start: #000000;
             --devil-end: #ff0000;
             --text-grad-start: #1A237E;
             --text-grad-end: #7B1FA2;
+
+            /* 流星設定 */
+            --meteor-speed: 3s;
         }
 
         /* ==========================================
@@ -45,75 +40,99 @@
             background: linear-gradient(var(--bg-angle), var(--bg-pink), var(--bg-blue));
             background-attachment: fixed;
             display: flex; justify-content: center; align-items: center;
-            overflow-x: hidden;
+            overflow: hidden; 
+            cursor: crosshair; /* 更改鼠標樣式增加互動感 */
         }
 
-        /* 流星特效 */
-        .night { position: fixed; width: 100%; height: 100%; transform: rotateZ(45deg); z-index: 0; }
+        /* 水面漣漪特效樣式 */
+        .ripple {
+            position: absolute;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none; /* 點擊穿透 */
+            animation: ripple-effect 0.8s ease-out;
+            z-index: 9999;
+        }
+
+        @keyframes ripple-effect {
+            from { width: 0; height: 0; opacity: 0.8; }
+            to { width: 200px; height: 200px; opacity: 0; }
+        }
+
+        /* 流星特效 - 避開左上角 (左上約 30% 區域不放流星) */
+        .night { 
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%; 
+            transform: rotateZ(45deg); 
+            z-index: 0; pointer-events: none;
+        }
+
         .shooting_star {
-            position: absolute; height: 2px; background: linear-gradient(-45deg, white, rgba(0,0,255,0));
+            position: absolute; height: 2px; 
+            background: linear-gradient(-45deg, white, rgba(0,0,255,0));
             border-radius: 999px; filter: drop-shadow(0 0 6px white);
-            animation: tail 3s ease-in-out infinite, shooting 3s ease-in-out infinite;
+            animation: tail var(--meteor-speed) ease-in-out infinite, shooting var(--meteor-speed) ease-in-out infinite;
+            opacity: 0;
         }
-        @keyframes tail { 0% { width: 0; } 30% { width: 100px; } 100% { width: 0; } }
-        @keyframes shooting { 0% { transform: translateX(0); } 100% { transform: translateX(300px); } }
-        .shooting_star:nth-child(1) { top: 10%; left: 20%; animation-delay: 0s; }
-        .shooting_star:nth-child(2) { top: 50%; left: 70%; animation-delay: 1.5s; }
 
-        /* 霧面 GUI */
+        @keyframes tail { 0% { width: 0; opacity: 0; } 30% { width: 100px; opacity: 1; } 100% { width: 0; opacity: 0; } }
+        @keyframes shooting { 0% { transform: translateX(0); } 100% { transform: translateX(400px); } }
+
+        /* 流星分佈：避開 top < 30% 且 left < 30% 的區域 */
+        .shooting_star:nth-child(1) { top: 10%; left: 60%; animation-delay: 0s; }
+        .shooting_star:nth-child(2) { top: 40%; left: 10%; animation-delay: 1.5s; }
+        .shooting_star:nth-child(3) { top: 70%; left: 20%; animation-delay: 2.8s; }
+        .shooting_star:nth-child(4) { top: 50%; left: 80%; animation-delay: 4.2s; }
+        .shooting_star:nth-child(5) { top: 85%; left: 50%; animation-delay: 0.5s; }
+        .shooting_star:nth-child(6) { top: 15%; left: 85%; animation-delay: 3.3s; }
+        .shooting_star:nth-child(7) { top: 90%; left: 15%; animation-delay: 2.1s; }
+        .shooting_star:nth-child(8) { top: 30%; left: 50%; animation-delay: 5.0s; }
+
+        /* 霧面 GUI 容器 */
         .gui-container {
             position: relative; z-index: 10;
             width: 90%; max-width: 600px; max-height: 90vh;
-            background: var(--gui-bg); backdrop-filter: blur(var(--gui-blur));
+            background: rgba(245, 245, 245, 0.45); /* 輕微調亮的白灰霧面 */
+            backdrop-filter: blur(15px);
             border-radius: 20px; padding: 30px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
             border: 1px solid rgba(255, 255, 255, 0.3);
             overflow-y: auto; text-align: center;
         }
 
-        /* 霓虹燈閃爍標題 */
+        /* 霓虹燈標題 */
         .main-title {
-            font-size: var(--title-size); font-weight: bold; color: #fff;
+            font-size: var(--title-size); font-weight: bold; 
+            color: var(--title-color); /* 使用 #7B68EE */
             margin-bottom: 20px; letter-spacing: 5px;
+            /* 霓虹效果與標題色及背景色同步 */
             animation: flicker var(--neon-flicker-speed) infinite alternate;
         }
 
         @keyframes flicker {
             0%, 18%, 22%, 25%, 53%, 57%, 100% {
-                text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px var(--bg-pink), 0 0 var(--neon-glow-intensity) var(--bg-blue);
+                text-shadow: 0 0 7px #fff, 0 0 15px var(--title-color), 0 0 25px var(--bg-pink), 0 0 35px var(--bg-blue);
             }
-            20%, 24%, 55% {
-                text-shadow: none;
-                opacity: 0.8;
-            }
+            20%, 24%, 55% { text-shadow: none; opacity: 0.7; }
         }
 
         /* 流線隔線 */
         .stream-line {
-            width: 100%;
-            height: var(--line-height);
-            margin: 20px 0;
-            position: relative;
-            background: rgba(255, 255, 255, 0.1); /* 底線微弱可見 */
+            width: 100%; height: 2px; margin: 20px 0;
+            position: relative; background: rgba(255, 255, 255, 0.1);
             overflow: hidden;
-            border-radius: 10px;
         }
-
         .stream-line::after {
-            content: "";
-            position: absolute;
-            top: 0; left: -100%;
+            content: ""; position: absolute; top: 0; left: -100%;
             width: 100%; height: 100%;
-            background: linear-gradient(90deg, var(--line-color-start), var(--line-color-mid), var(--line-color-end));
+            background: linear-gradient(90deg, transparent, var(--line-color-mid), transparent);
             animation: flow var(--line-flow-speed) linear infinite;
         }
+        @keyframes flow { 0% { left: -100%; } 100% { left: 100%; } }
 
-        @keyframes flow {
-            0% { left: -100%; }
-            100% { left: 100%; }
-        }
-
-        /* 內容字體樣式 */
+        /* 字體顏色設定 */
         .price-list-title {
             background: linear-gradient(to bottom, var(--text-grad-start), var(--text-grad-end));
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
@@ -134,9 +153,8 @@
             font-weight: 600; list-style: none; padding: 0; margin: 5px 0; line-height: 1.6;
         }
         .highlight-box {
-            border-left: 4px solid var(--text-grad-start);
-            margin: 10px auto; padding: 5px 15px;
-            background: rgba(255, 255, 255, 0.2); width: fit-content;
+            padding: 5px 15px; background: rgba(255, 255, 255, 0.2); 
+            width: fit-content; margin: 10px auto; border-radius: 5px;
         }
         .footer-note { font-size: 0.85rem; margin-top: 30px; opacity: 0.8; font-style: italic; }
     </style>
@@ -146,15 +164,19 @@
     <div class="night">
         <div class="shooting_star"></div>
         <div class="shooting_star"></div>
+        <div class="shooting_star"></div>
+        <div class="shooting_star"></div>
+        <div class="shooting_star"></div>
+        <div class="shooting_star"></div>
+        <div class="shooting_star"></div>
+        <div class="shooting_star"></div>
     </div>
 
     <div class="gui-container">
         <div class="main-title">入機電競介紹</div>
-        
         <div class="price-list-title">入機電競價目表</div>
 
         <div class="stream-line"></div>
-
         <div class="gold-title">金牌打手</div>
         <ul class="content-text">
             <li><strong>體驗單: 5</strong></li>
@@ -163,15 +185,15 @@
         </ul>
 
         <div class="stream-line"></div>
-
         <ul class="content-text">
             <li><strong>抖音單: 10</strong></li>
             <li>普壩保底 400 萬 / 機壩保底 200 萬</li>
-            <div class="content-text"> 老闆龜撤離滑抖音打手投餵 </div>
+            <div class="highlight-box">
+                <span class="content-text">老闆龜撤離滑抖音打手投餵</span>
+            </div>
         </ul>
 
         <div class="stream-line"></div>
-
         <div class="devil-title">入機魔王護</div>
         <ul class="content-text">
             <li><strong>清圖單: 20</strong></li>
@@ -180,7 +202,6 @@
         </ul>
 
         <div class="stream-line"></div>
-
         <ul class="content-text">
             <li><strong>壓力單: 15</strong></li>
             <li>普壩保底 300 萬</li>
@@ -188,7 +209,6 @@
         </ul>
 
         <div class="stream-line"></div>
-
         <ul class="content-text">
             <li><strong>航天體驗單: 10 / 把</strong></li>
             <li>機航保底 100 萬</li>
@@ -196,11 +216,26 @@
         </ul>
 
         <div class="stream-line"></div>
-
         <div class="footer-note content-text">
             入機電競打手有一切壓力老闆的權力，若老闆不服就受著
         </div>
     </div>
+
+    <script>
+        document.addEventListener('click', function(e) {
+            const ripple = document.createElement('div');
+            ripple.className = 'ripple';
+            document.body.appendChild(ripple);
+
+            ripple.style.left = `${e.clientX}px`;
+            ripple.style.top = `${e.clientY}px`;
+
+            // 動畫結束後移除元素，防止佔用記憶體
+            ripple.addEventListener('animationend', () => {
+                ripple.remove();
+            });
+        });
+    </script>
 
 </body>
 </html>
