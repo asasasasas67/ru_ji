@@ -5,244 +5,265 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>入機電競介紹</title>
     <style>
-        /* ==========================================
-           參數調整區：你可以在這裡修改所有特效
-           ========================================== */
         :root {
-            /* 背景與主題 */
             --bg-pink: #ffafbd;
             --bg-blue: #2193b0;
             --title-color: #7B68EE;
-
-            /* 點擊漣漪設定 */
-            --ripple-size: 200px;         /* 擴散最大尺寸 */
-            --ripple-speed: 0.8s;        /* 擴散速度 */
-            --ripple-border: #ffffff;    /* 漣漪邊框顏色 */
-
-            /* 鼠標飄尾設定 */
-            --trail-size: 8px;           /* 飄尾粒子大小 */
-            --trail-color: linear-gradient(45deg, #ffafbd, #2193b0); /* 飄尾顏色 */
-            --trail-duration: 0.5s;      /* 飄尾消失時間 */
-
-            /* 流動隔線設定 */
-            --line-height: 2px;          /* 線條粗細 */
-            --line-speed: 3s;            /* 流動速度 (越小越快) */
-            --line-glow: rgba(255, 255, 255, 0.8); /* 線條流動光色 */
-
-            /* 內容字體顏色 */
             --gold-color: #ffd700;
             --text-grad-start: #1A237E;
             --text-grad-end: #7B1FA2;
+            /* 電競霓虹深色系 */
+            --neon-deep-blue: #0019ff;
+            --neon-deep-purple: #4b0082;
         }
 
-        /* ==========================================
-           基礎核心樣式
-           ========================================== */
         body, html {
             margin: 0; padding: 0; height: 100%;
             font-family: 'Microsoft JhengHei', sans-serif;
             background: linear-gradient(135deg, var(--bg-pink), var(--bg-blue));
             background-attachment: fixed;
             display: flex; justify-content: center; align-items: center;
+            overflow: hidden; cursor: crosshair;
+        }
+
+        #fx-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+
+        /* --- 深藍配紫漸層流線外框 --- */
+        .outer-neon-frame {
+            position: relative;
+            z-index: 10;
+            padding: 5px; /* 線條寬度 */
+            border-radius: 25px;
             overflow: hidden;
-            cursor: default;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 25px rgba(0, 25, 255, 0.5);
         }
 
-        /* 點擊漣漪 (優化：pointer-events 為 none 確保點擊字體不消失) */
-        .ripple {
-            position: fixed; border: 2px solid var(--ripple-border);
-            background: rgba(255, 255, 255, 0.1); border-radius: 50%;
-            transform: translate(-50%, -50%); pointer-events: none;
-            animation: ripple-anim var(--ripple-speed) ease-out forwards;
-            z-index: 10000;
-        }
-        @keyframes ripple-anim {
-            from { width: 0; height: 0; opacity: 0.8; }
-            to { width: var(--ripple-size); height: var(--ripple-size); opacity: 0; }
-        }
-
-        /* 鼠標飄尾粒子 */
-        .trail {
-            position: fixed; width: var(--trail-size); height: var(--trail-size);
-            background: var(--trail-color); border-radius: 50%;
-            pointer-events: none; z-index: 9999;
-            box-shadow: 0 0 10px var(--bg-blue);
-            animation: trail-anim var(--trail-duration) linear forwards;
-        }
-        @keyframes trail-anim {
-            to { transform: scale(0); opacity: 0; }
+        .outer-neon-frame::before {
+            content: '';
+            position: absolute;
+            width: 150%;
+            height: 150%;
+            background: conic-gradient(
+                transparent, 
+                var(--neon-deep-blue), 
+                var(--neon-deep-purple), 
+                #00f2ff, 
+                transparent 40%
+            );
+            animation: rotateFrame 4s linear infinite;
         }
 
-        /* 流星特效 */
-        .night { position: fixed; width: 100%; height: 100%; transform: rotateZ(45deg); z-index: 0; pointer-events: none; }
-        .shooting_star {
-            position: absolute; height: 2px; background: linear-gradient(-45deg, white, rgba(0,0,255,0));
-            border-radius: 999px; filter: drop-shadow(0 0 6px white);
-            animation: tail 3s ease-in-out infinite, shooting 3s ease-in-out infinite;
-            opacity: 0;
+        @keyframes rotateFrame {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
-        @keyframes tail { 0% { width: 0; opacity: 0; } 30% { width: 100px; opacity: 1; } 100% { width: 0; opacity: 0; } }
-        @keyframes shooting { 0% { transform: translateX(0); } 100% { transform: translateX(400px); } }
-        .shooting_star:nth-child(1) { top: 10%; left: 60%; }
-        .shooting_star:nth-child(2) { top: 40%; left: 15%; animation-delay: 1.5s; }
-        .shooting_star:nth-child(3) { top: 70%; left: 25%; animation-delay: 2.8s; }
 
-        /* GUI 容器 */
+        /* 主卡片內容 */
         .gui-container {
-            position: relative; z-index: 10;
-            width: 90%; max-width: 600px; max-height: 85vh;
-            background: rgba(245, 245, 245, 0.45);
-            backdrop-filter: blur(15px); border-radius: 20px; padding: 35px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            overflow-y: auto; text-align: center;
+            position: relative; 
+            width: 100%; 
+            max-width: 600px; 
+            max-height: 85vh;
+            background: rgba(245, 245, 245, 0.85); 
+            backdrop-filter: blur(15px);
+            border-radius: 20px; 
+            padding: 35px; 
+            overflow-y: auto; 
+            text-align: center;
+            z-index: 11;
         }
 
-        /* 霓虹標題 */
-        .main-title {
-            font-size: 2.5rem; font-weight: bold; color: var(--title-color);
-            margin-bottom: 20px; letter-spacing: 5px;
+        /* --- 霓虹燈標題特效 --- */
+        .neon-flicker {
             animation: flicker 2s infinite alternate;
+            text-shadow: 0 0 7px #fff, 0 0 15px var(--neon-deep-blue), 0 0 30px var(--neon-deep-purple);
         }
+
         @keyframes flicker {
-            0%, 100% { text-shadow: 0 0 7px #fff, 0 0 15px var(--title-color); }
-            50% { opacity: 0.8; text-shadow: none; }
+            0%, 18%, 22%, 25%, 53%, 57%, 100% { opacity: 1; }
+            20%, 24%, 55% { opacity: 0.6; text-shadow: none; }
         }
 
-        /* 流動隔線 (優化版) */
-        .stream-line {
-            width: 100%; height: var(--line-height); margin: 25px 0;
-            position: relative; background: rgba(255, 255, 255, 0.15);
-            overflow: hidden; border-radius: 10px;
+        /* --- 原始文字樣式與動畫 --- */
+        .main-title, .price-list-title, .gold-title, .devil-title, li, .highlight-box {
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: block;
         }
-        .stream-line::after {
-            content: ""; position: absolute; top: 0; left: -100%;
-            width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, var(--line-glow), transparent);
-            animation: flow-anim var(--line-speed) linear infinite;
-        }
-        @keyframes flow-anim { 0% { left: -100%; } 100% { left: 100%; } }
-
-        /* 懸停效果 */
-        .gold-title, .devil-title, li, .highlight-box {
-            transition: transform 0.3s ease;
-        }
-        .gold-title:hover, .devil-title:hover, li:hover, .highlight-box:hover {
-            transform: scale(1.03);
-        }
-
-        /* 文字樣式 */
-        .price-list-title { background: linear-gradient(to bottom, var(--text-grad-start), var(--text-grad-end)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.8rem; font-weight: bold; }
+        .main-title:hover { transform: scale(1.15); text-shadow: 0 0 20px var(--title-color); color: #fff; }
+        .main-title { font-size: 2.5rem; font-weight: bold; color: var(--title-color); margin-bottom: 20px; letter-spacing: 5px; }
+        .price-list-title { font-size: 1.8rem; font-weight: bold; background: linear-gradient(to bottom, var(--text-grad-start), var(--text-grad-end)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .stream-line { width: 100%; height: 2px; margin: 25px 0; background: rgba(255, 255, 255, 0.3); position: relative; overflow: hidden; }
+        .stream-line::after { content: ""; position: absolute; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, #fff, transparent); animation: flow 3s linear infinite; }
+        @keyframes flow { 100% { left: 100%; } }
         .gold-title { color: var(--gold-color); font-size: 1.5rem; font-weight: bold; text-shadow: 0 0 10px #ffcc00; margin: 15px 0; }
         .devil-title { background: linear-gradient(to right, #000, #f00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.5rem; font-weight: 900; margin: 15px 0; }
         .content-text { background: linear-gradient(45deg, var(--text-grad-start), var(--text-grad-end)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 600; list-style: none; padding: 0; line-height: 1.6; }
         .highlight-box { padding: 8px 15px; background: rgba(255, 255, 255, 0.2); width: fit-content; margin: 10px auto; border-radius: 8px; }
+        .contact-btn { padding: 15px 40px; background: linear-gradient(to right, var(--title-color), var(--bg-blue)); color: white; border-radius: 50px; font-weight: bold; border: none; cursor: pointer; margin-top: 20px; }
+        li:hover { background: rgba(123, 104, 238, 0.2); transform: translateX(10px); color: #fff !important; cursor: pointer; }
 
-        /* 按鈕樣式 (優化：取消自動縮放，僅 Hover 縮放) */
-        .contact-link { text-decoration: none; display: inline-block; margin-top: 30px; }
-        .contact-btn {
-            padding: 15px 40px;
-            background: linear-gradient(to right, var(--title-color), var(--bg-blue));
-            color: white; border-radius: 50px; font-weight: bold; font-size: 1.1rem;
-            box-shadow: 0 0 15px rgba(123, 104, 238, 0.4);
-            border: none; transition: transform 0.3s ease, filter 0.3s ease;
-            animation: btn-glow 2s infinite alternate; /* 僅保留光暈呼吸 */
-        }
-        .contact-btn:hover {
-            transform: scale(1.1); /* 鼠標移入才放大 */
-            filter: brightness(1.2);
-        }
-        @keyframes btn-glow {
-            from { box-shadow: 0 0 10px rgba(123, 104, 238, 0.4); }
-            to { box-shadow: 0 0 25px rgba(123, 104, 238, 0.8); }
+        /* 流星樣式 (原版 V4) */
+        .shooting-star-v4 {
+            position: absolute; height: 3px; background: linear-gradient(-45deg, #fff, rgba(0,0,255,0));
+            filter: drop-shadow(0 0 10px #fff); border-radius: 999px; pointer-events: none; transform-origin: left center;
         }
 
-        .footer-note { font-size: 0.85rem; margin-top: 25px; opacity: 0.7; font-style: italic; }
+        .ripple { position: fixed; border: 2px solid #fff; background: rgba(255,255,255,0.1); border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; animation: rip 0.8s ease-out forwards; z-index: 999998; }
+        @keyframes rip { from { width: 0; height: 0; opacity: 0.8; } to { width: 150px; height: 150px; opacity: 0; } }
+
+        /* 設定選單 */
+        .side-gui {
+            position: fixed; left: -260px; top: 50%; transform: translateY(-50%);
+            width: 210px; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(20px); border-radius: 0 25px 25px 0;
+            padding: 25px; z-index: 1000000; transition: 0.5s;
+        }
+        .side-gui.active { left: 0; }
+        .gui-toggle {
+            position: absolute; right: -45px; top: 50%; transform: translateY(-50%);
+            width: 45px; height: 100px; background: rgba(0, 0, 0, 0.85); border-radius: 0 15px 15px 0;
+            display: flex; align-items: center; justify-content: center; cursor: pointer; color: white;
+        }
+        .btn-toggle { width: 100%; padding: 12px; margin: 8px 0; background: rgba(255,255,255,0.1); color: white; border: none; border-radius: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div class="night">
-        <div class="shooting_star"></div>
-        <div class="shooting_star"></div>
-        <div class="shooting_star"></div>
+    <div id="fx-layer"></div>
+
+    <audio id="bgMusic" loop>
+        <source src="https://archive.org/download/soundcloud-1412271310/soundcloud-1412271310.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="side-gui" id="sideGui">
+        <div class="gui-toggle" onclick="this.parentElement.classList.toggle('active')">⚙️</div>
+        <h3 style="color:white; text-align:center;">特效設定</h3>
+        <button class="btn-toggle" onclick="setEffect('stars', this)">✨</button>
+        <button class="btn-toggle" onclick="setEffect('shooting', this)">☄️</button>
+        <button class="btn-toggle" style="background:rgba(255,0,0,0.3)" onclick="setEffect('none', this)">❌</button>
     </div>
 
-    <div class="gui-container">
-        <div class="main-title">入機電競介紹</div>
-        <div class="price-list-title">入機電競價目表</div>
+    <div class="outer-neon-frame">
+        <div class="gui-container">
+            <div class="main-title neon-flicker">入機電競介紹</div>
+            <div class="price-list-title">入機電競價目表</div>
 
-        <div class="stream-line"></div>
-        <div class="gold-title">金牌打手</div>
-        <ul class="content-text">
-            <li>體驗單: 5</li>
-            <li>普壩保底 200 萬</li>
-            <li>普壩清圖</li>
-        </ul>
+            <div class="stream-line"></div>
+            <div class="gold-title">金牌打手</div>
+            <ul class="content-text">
+                <li>體驗單: 5</li>
+                <li>普壩保底 200 萬</li>
+                <li>普壩清圖</li>
+            </ul>
 
-        <div class="stream-line"></div>
-        <ul class="content-text">
-            <li>抖音單: 10</li>
-            <li>普壩保底 400 萬 / 機壩保底 200 萬</li>
-            <div class="highlight-box">
-                <span class="content-text">老闆龜撤離滑抖音打手投餵</span>
+            <div class="stream-line"></div>
+            <ul class="content-text">
+                <li>抖音單: 10</li>
+                <li>普壩保底 400 萬 / 機壩保底 200 萬</li>
+                <div class="highlight-box">
+                    <span class="content-text">老闆龜撤離滑抖音打手投餵</span>
+                </div>
+            </ul>
+
+            <div class="stream-line"></div>
+            <div class="devil-title">入機魔王護</div>
+            <ul class="content-text">
+                <li>清圖單: 20</li>
+                <li>普壩保底 600 萬</li>
+                <li>不清圖不撤</li>
+            </ul>
+
+            <div class="stream-line"></div>
+            <ul class="content-text">
+                <li>壓力單: 15/場</li>
+                <li>保底0</li>
+                <li>打手幫起裝給老闆打</li>
+            </ul>
+
+            <div class="stream-line"></div>
+            <button class="contact-btn" onclick="window.open('https://discord.gg/cqK3ADZAp')">立即預約下單</button>
+
+            <div class="footer-note content-text">
+                入機電競打手有一切壓力老闆的權力，若老闆不服就受著
             </div>
-        </ul>
-
-        <div class="stream-line"></div>
-        <div class="devil-title">入機魔王護</div>
-        <ul class="content-text">
-            <li>清圖單: 20</li>
-            <li>普壩保底 600 萬</li>
-            <li>不清圖不撤</li>
-        </ul>
-
-        <div class="stream-line"></div>
-        <ul class="content-text">
-            <li>壓力單: 15/場</li>
-            <li>保底0</li>
-            <li>打手幫起裝給老闆打</li>
-        </ul>
-
-        <div class="stream-line"></div>
-        
-        <a href="https://discord.gg/cqK3ADZAp" target="_blank" class="contact-link">
-            <button class="contact-btn">立即預約下單</button>
-        </a>
-
-        <div class="footer-note content-text">
-            入機電競打手有一切壓力老闆的權力，若老闆不服就受著
         </div>
     </div>
 
     <script>
-        // 點擊漣漪與飄尾特效
-        document.addEventListener('mousedown', function(e) {
-            const ripple = document.createElement('div');
-            ripple.className = 'ripple';
-            document.body.appendChild(ripple);
-            ripple.style.left = `${e.clientX}px`;
-            ripple.style.top = `${e.clientY}px`;
-            ripple.addEventListener('animationend', () => ripple.remove());
+        const audio = document.getElementById('bgMusic');
+        let musicStarted = false;
+        
+        document.addEventListener('click', (e) => {
+            if(!musicStarted) {
+                audio.play().catch(err => console.log("音樂播放受限"));
+                musicStarted = true;
+            }
+            spawnRipple(e);
         });
 
-        // 滑鼠移動飄尾
-        document.addEventListener('mousemove', function(e) {
-            const trail = document.createElement('div');
-            trail.className = 'trail';
-            document.body.appendChild(trail);
-            trail.style.left = `${e.clientX}px`;
-            trail.style.top = `${e.clientY}px`;
-            
-            // 隨機微調位置讓飄尾更自然
-            const offset = (Math.random() - 0.5) * 10;
-            trail.style.marginLeft = `${offset}px`;
+        function spawnRipple(e) {
+            const rip = document.createElement('div');
+            rip.className = 'ripple';
+            rip.style.left = e.clientX + 'px';
+            rip.style.top = e.clientY + 'px';
+            document.body.appendChild(rip);
+            setTimeout(() => rip.remove(), 800);
+        }
 
-            setTimeout(() => {
-                trail.remove();
-            }, 500); // 對應 CSS 的 duration
-        });
+        /* --- 原版流星特效邏輯 --- */
+        let effectInterval = null;
+        let mouseX = window.innerWidth/2, mouseY = window.innerHeight/2;
+        document.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
+
+        function setEffect(type, btn) {
+            clearInterval(effectInterval);
+            document.getElementById('fx-layer').innerHTML = '';
+            if(type === 'none') return;
+
+            const layer = document.getElementById('fx-layer');
+            if (type === 'stars') {
+                for(let i=0; i<80; i++) {
+                    let s = document.createElement('div');
+                    s.style.position = 'absolute'; s.style.background = 'white';
+                    s.style.borderRadius = '50%'; s.style.width = s.style.height = Math.random()*3+'px';
+                    s.style.left = Math.random()*100+'%'; s.style.top = Math.random()*100+'%';
+                    s.style.opacity = Math.random(); layer.appendChild(s);
+                }
+            }
+
+            if (type === 'shooting') {
+                effectInterval = setInterval(() => {
+                    const batch = Math.floor(Math.random() * 8) + 5; 
+                    for(let i=0; i<batch; i++){
+                        let s = document.createElement('div');
+                        s.className = 'shooting-star-v4';
+                        const side = Math.floor(Math.random() * 4);
+                        let sx, sy;
+                        if(side === 0) { sx = -100; sy = Math.random() * window.innerHeight; }
+                        else if(side === 1) { sx = window.innerWidth + 100; sy = Math.random() * window.innerHeight; }
+                        else if(side === 2) { sx = Math.random() * window.innerWidth; sy = -100; }
+                        else { sx = Math.random() * window.innerWidth; sy = window.innerHeight + 100; }
+                        
+                        s.style.left = sx + 'px'; s.style.top = sy + 'px';
+                        const angle = Math.atan2(mouseY - sy, mouseX - sx);
+                        s.style.transform = `rotate(${angle}rad)`;
+                        s.style.width = '0px'; 
+                        layer.appendChild(s);
+
+                        const duration = Math.random() * 800 + 600;
+                        s.animate([
+                            { width: '0px', opacity: 1 },
+                            { width: '200px', opacity: 1, offset: 0.2 },
+                            { transform: `translate(${(mouseX-sx)}px, ${(mouseY-sy)}px) rotate(${angle}rad)`, width: '10px', opacity: 0 }
+                        ], { duration: duration, easing: 'ease-out' }).onfinish = () => s.remove();
+                    }
+                }, 200);
+            }
+        }
+
+        window.onload = () => setEffect('shooting');
     </script>
 </body>
 </html>
-
