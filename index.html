@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>入機訓練營</title>
+    <title>入機訓練營 - 專業版</title>
     <style>
         :root { --accent: #00f2fe; --bg: #050505; --cross-color: #ffffff; --line-color: rgba(255,255,255,0.3); }
         body { margin: 0; overflow: hidden; background: #000; font-family: 'Inter', -apple-system, sans-serif; color: white; user-select: none; -webkit-user-select: none; touch-action: none; font-weight: 300; }
@@ -26,11 +26,13 @@
 
         /* UI 元件 - 線條極簡風 */
         #settings-trigger { position: absolute; top: 20px; right: 20px; width: 24px; height: 24px; z-index: 101; fill: none; stroke: var(--line-color); stroke-width: 1.5; cursor: pointer; transition: stroke 0.3s; }
-        #exit-btn { position: absolute; top: 25px; left: 25px; font-size: 12px; letter-spacing: 2px; color: #ff4c4c; border: 1px solid #ff4c4c; padding: 5px 10px; cursor: pointer; display: none; z-index: 105; text-transform: uppercase; }
+        #exit-btn { position: absolute; top: 25px; left: 25px; font-size: 12px; letter-spacing: 2px; color: #ff4c4c; border: 1px solid #ff4c4c; padding: 5px 10px; cursor: pointer; display: none; z-index: 105; text-transform: uppercase; background: rgba(0,0,0,0.5); }
         
+        #pc-hint { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.4); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; pointer-events: none; }
+
         .modal { 
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 300px; max-height: 70vh; overflow-y: auto; 
+            width: 320px; max-height: 80vh; overflow-y: auto; 
             background: rgba(5,5,5,0.85); border: 1px solid var(--line-color);
             padding: 30px; z-index: 110; display: none; backdrop-filter: blur(10px);
         }
@@ -46,17 +48,22 @@
         select, input[type="range"], input[type="number"] { width: 100%; background: transparent; color: white; border: 1px solid var(--line-color); padding: 8px; font-family: inherit; font-size: 12px; font-weight: 300; appearance: none; outline: none; box-sizing: border-box; }
         select option { background: #111; color: white; }
         input[type="range"] { height: 1px; padding: 0; background: var(--line-color); border: none; margin-top: 10px; }
-        input[type="range"]::-webkit-slider-thumb { appearance: none; width: 12px; height: 12px; background: var(--accent); border-radius: 50%; border: 1px solid #000; }
+        input[type="range"]::-webkit-slider-thumb { appearance: none; width: 12px; height: 12px; background: var(--accent); border-radius: 50%; border: 1px solid #000; cursor: pointer; }
+        input[type="range"]:disabled::-webkit-slider-thumb { background: #555; }
 
         .line-btn { width: 100%; padding: 12px; background: transparent; color: white; border: 1px solid var(--line-color); font-weight: 300; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; font-size: 12px; transition: border-color 0.3s; margin-top: 5px; }
         .line-btn.active { border-color: var(--accent); color: var(--accent); }
         .line-btn:active { border-color: white; }
 
-        #menu-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; }
+        #menu-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; overflow-y: auto;}
         .menu-row { display: flex; align-items: center; justify-content: center; margin: 8px; gap: 10px; }
-        .mode-btn { background: transparent; border: 1px solid var(--line-color); color: rgba(255,255,255,0.8); padding: 15px; width: 200px; font-weight: 300; letter-spacing: 3px; font-size: 13px; cursor: pointer; transition: 0.3s; }
-        .mode-btn:active { border-color: var(--accent); color: white; }
+        .mode-btn { background: transparent; border: 1px solid var(--line-color); color: rgba(255,255,255,0.8); padding: 15px; width: 220px; font-weight: 300; letter-spacing: 3px; font-size: 13px; cursor: pointer; transition: 0.3s; }
+        .mode-btn:active, .mode-btn:hover { border-color: var(--accent); color: white; }
         .gear-btn { width: 45px; height: 45px; background: transparent; border: 1px solid var(--line-color); color: white; font-size: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
+        #scoreboard-area { margin-top: 40px; text-align: center; border-top: 1px solid var(--line-color); padding-top: 20px; width: 300px; }
+        #scoreboard-area h3 { font-size: 14px; letter-spacing: 4px; margin-bottom: 15px; color: var(--accent); font-weight: 300; }
+        .score-row { display: flex; justify-content: space-between; font-size: 12px; letter-spacing: 1px; color: #bbb; margin-bottom: 8px; font-family: monospace; }
 
         #game-ui { position: absolute; top: 30px; left: 50%; transform: translateX(-50%); pointer-events: none; opacity: 0; display: flex; gap: 15px; font-size: 12px; letter-spacing: 2px; color: #888; text-transform: uppercase; white-space: nowrap; }
         .stat-val { color: white; font-family: monospace; font-size: 14px; margin-left: 5px; }
@@ -65,6 +72,9 @@
         #shoot-btn { position: absolute; bottom: 80px; right: 60px; width: 80px; height: 80px; background: transparent; border: 1px solid var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 300; letter-spacing: 2px; color: var(--accent); z-index: 105; touch-action: none; transition: background 0.1s; }
         #shoot-btn:active { background: rgba(0, 242, 254, 0.1); }
         .edit-mode { border: 1px dashed #ff007f !important; color: #ff007f !important; }
+
+        @media (pointer: fine) { #shoot-btn { display: none; } }
+        @media (pointer: coarse) { #pc-hint { display: none; } }
     </style>
 </head>
 <body>
@@ -72,7 +82,8 @@
     <div id="crosshair-container"><div id="ch-render" class="ch-dot"></div></div>
     <div id="fov-circle"></div>
     
-    <div id="exit-btn" onclick="exitGame()">EXIT</div>
+    <div id="exit-btn" onclick="exitGame()">EXIT (ESC)</div>
+    <div id="pc-hint">CLICK TO LOCK MOUSE • L-CLICK: FIRE • ESC TO MENU</div>
     
     <div id="settings-trigger">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
@@ -87,6 +98,10 @@
         <div class="s-item">
             <label>Crosshair Style</label>
             <select id="ch-style"><option value="dot">Dot</option><option value="cross">Cross</option><option value="hollow">Hollow</option></select>
+        </div>
+        <div class="s-item">
+            <label>Crosshair Color</label>
+            <input type="color" id="color-crosshair" value="#ffffff" style="height:35px; padding:0; cursor:pointer;">
         </div>
         <div class="s-item">
             <label>Target Color</label>
@@ -111,10 +126,15 @@
         </div>
         <div class="s-item">
             <button id="toggle-lock-btn" class="line-btn">Lock: OFF</button>
-            <div id="smoothness-container" style="display:none; margin-top:10px;">
+            <button id="toggle-aimassist-btn" class="line-btn" style="border-color: #ff9900; color: #ff9900;">Aim Assist: OFF</button>
+            <div id="lock-settings-container" style="display:none; margin-top:10px;">
                 <label>Lock Smoothness <span id="smooth-display" class="s-val">5.0</span></label>
                 <input type="range" id="smooth-input" min="0.1" max="20" step="0.1" value="5.0">
+                <button id="toggle-dummy-aim-btn" class="line-btn" style="margin-top:10px;">Dummy Aim: HEAD</button>
             </div>
+        </div>
+        <div class="s-item">
+            <button id="toggle-autoshoot-btn" class="line-btn">Auto Shoot: OFF</button>
         </div>
 
         <button onclick="applySettings()" class="line-btn" style="border-color: white; margin-top: 20px;">APPLY & CLOSE</button>
@@ -131,23 +151,40 @@
         </div>
         
         <div class="s-item" id="ms-trace-wrap" style="display:none;">
-            <label>Target Speed <span id="ms-speed-val" class="s-val">0.12</span></label>
-            <input type="range" id="ms-speed" min="0.02" max="0.5" step="0.01" value="0.12">
+            <label>Target Speed <span id="ms-speed-val" class="s-val">0.06</span></label>
+            <input type="range" id="ms-speed" min="0.02" max="0.5" step="0.01" value="0.06">
+            <button id="ms-trace-rand-btn" class="line-btn" style="margin-top:15px;">Random Move: OFF</button>
         </div>
+        
         <div class="s-item" id="ms-flicks-wrap" style="display:none;">
             <label>Spawn Range <span id="ms-range-val" class="s-val">12</span></label>
             <input type="range" id="ms-range" min="4" max="20" step="1" value="12">
+        </div>
+
+        <div class="s-item" id="ms-dummy-wrap" style="display:none;">
+            <label>Dummy HP <span id="ms-dummy-hp-val" class="s-val">100</span></label>
+            <input type="range" id="ms-dummy-hp" min="10" max="1000" step="10" value="100">
         </div>
 
         <button onclick="saveModeSettings()" class="line-btn" style="border-color: white; margin-top: 20px;">SAVE</button>
     </div>
 
     <div id="menu-overlay">
-        <h1 style="font-weight: 300; font-size: 28px; letter-spacing: 15px; margin-bottom: 40px;">入機訓練營</h1>
+        <h1 style="font-weight: 300; font-size: 28px; letter-spacing: 15px; margin-bottom: 20px; text-align:center;">入機訓練營</h1>
         <div class="menu-row"><button class="mode-btn" onclick="initGame('sixshot')">SIX SHOT</button><button class="gear-btn" onclick="openModeSettings('sixshot')">⚙</button></div>
         <div class="menu-row"><button class="mode-btn" onclick="initGame('3x3')">3X3 DENSE</button><button class="gear-btn" onclick="openModeSettings('3x3')">⚙</button></div>
         <div class="menu-row"><button class="mode-btn" onclick="initGame('trace')">AUTO-TRACK</button><button class="gear-btn" onclick="openModeSettings('trace')">⚙</button></div>
         <div class="menu-row"><button class="mode-btn" onclick="initGame('flicks')">FLICKS</button><button class="gear-btn" onclick="openModeSettings('flicks')">⚙</button></div>
+        <div class="menu-row"><button class="mode-btn" style="color: #ff4c4c; border-color: #ff4c4c;" onclick="initGame('dummy')">TARGET DUMMY</button><button class="gear-btn" style="color: #ff4c4c; border-color: #ff4c4c;" onclick="openModeSettings('dummy')">⚙</button></div>
+        
+        <div id="scoreboard-area">
+            <h3>HIGH SCORES</h3>
+            <div class="score-row"><span>SIX SHOT</span><span id="hs-sixshot">0</span></div>
+            <div class="score-row"><span>3X3 DENSE</span><span id="hs-3x3">0</span></div>
+            <div class="score-row"><span>AUTO-TRACK</span><span id="hs-trace">0</span></div>
+            <div class="score-row"><span>FLICKS</span><span id="hs-flicks">0</span></div>
+            <div class="score-row"><span>TARGET DUMMY</span><span id="hs-dummy">0</span></div>
+        </div>
     </div>
 
     <div id="game-ui">
@@ -156,6 +193,11 @@
         <div>SCORE<span id="score" class="stat-val">0</span></div>
         <div class="divider">|</div>
         <div>ACC<span id="acc" class="stat-val">100%</span></div>
+        <div class="divider">|</div>
+        <div>AMMO<span id="ammo-val" class="stat-val" style="color:#00f2fe;">∞</span></div>
+        
+        <div id="hp-divider" class="divider" style="display:none;">|</div>
+        <div id="hp-ui" style="display:none; color:#ff4c4c;">HP<span id="dummy-hp" class="stat-val" style="color:#ff4c4c;">100</span></div>
     </div>
 
     <div id="shoot-btn">HIT</div>
@@ -171,32 +213,89 @@
         let lastX = 0, lastY = 0, isEditMode = false;
         let targetColorValue = 0xffffff;
         let occupiedSlots = new Set(); 
+        
+        let hasPointerLock = false;
 
-        // 獨立模式設定與外掛變數
         let modeSettings = {
             sixshot: { time: 30, showAcc: true },
             '3x3': { time: 30, showAcc: true },
-            trace: { time: 30, showAcc: true, speed: 0.12 },
-            flicks: { time: 30, showAcc: true, range: 12 }
+            // Trace 的預設速度改為 0.06
+            trace: { time: 30, showAcc: true, speed: 0.06, randomMove: false },
+            flicks: { time: 30, showAcc: true, range: 12 },
+            dummy: { time: 60, showAcc: true, hp: 100 }
         };
         let editingMode = '';
         
-        let hacks = { silentAim: false, fovSize: 100, lock: false, smoothness: 5.0 };
+        let hacks = { silentAim: false, fovSize: 100, lock: false, smoothness: 5.0, autoShoot: false, aimAssist: false, dummyAimPart: 'head' };
+        let autoShootCooldown = 0;
+
+        let gunGroup;
+        let recoilTarget = 0, recoilCurrent = 0;
+        let dummyGroup;
+        let currentDummyHP = 100;
+
+        let highScores = JSON.parse(localStorage.getItem('bootcampHighScores')) || {
+            sixshot: 0, '3x3': 0, trace: 0, flicks: 0, dummy: 0
+        };
 
         function init() {
             scene = new THREE.Scene(); scene.background = new THREE.Color(0x050505);
             camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
             camera.position.set(0, 1.7, 0);
+            scene.add(camera);
+
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
             clock = new THREE.Clock();
-            scene.add(new THREE.AmbientLight(0xffffff, 2));
-            const grid = new THREE.GridHelper(100, 50, 0x111111, 0x080808); 
-            scene.add(grid);
+            
+            scene.add(new THREE.AmbientLight(0xffffff, 1.5));
+            const dirLight = new THREE.DirectionalLight(0xffffff, 2);
+            dirLight.position.set(5, 10, 5);
+            scene.add(dirLight);
+            scene.add(new THREE.GridHelper(100, 50, 0x111111, 0x080808)); 
 
+            createM1911();
             setupControls();
+            updateScoreboardUI();
+            
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
             animate();
+        }
+
+        function createM1911() {
+            gunGroup = new THREE.Group();
+            
+            const slideGeo = new THREE.BoxGeometry(0.04, 0.05, 0.22);
+            const slideMat = new THREE.MeshStandardMaterial({ color: 0x333333, metalness: 0.8, roughness: 0.3 });
+            const slide = new THREE.Mesh(slideGeo, slideMat);
+            
+            const sightGeo = new THREE.BoxGeometry(0.005, 0.015, 0.01);
+            const sight = new THREE.Mesh(sightGeo, slideMat);
+            sight.position.set(0, 0.03, -0.1);
+            
+            const detailsGeo = new THREE.BoxGeometry(0.042, 0.02, 0.05);
+            const detailsMat = new THREE.MeshStandardMaterial({ color: 0x111111, metalness: 0.9, roughness: 0.1 });
+            const detailPort = new THREE.Mesh(detailsGeo, detailsMat);
+            detailPort.position.set(0, 0.01, 0.02);
+
+            const gripGeo = new THREE.BoxGeometry(0.035, 0.12, 0.06);
+            const gripMat = new THREE.MeshStandardMaterial({ color: 0x3a2010, roughness: 0.9 });
+            const grip = new THREE.Mesh(gripGeo, gripMat);
+            grip.position.set(0, -0.06, 0.06);
+            grip.rotation.x = Math.PI / 8;
+
+            gunGroup.add(slide);
+            gunGroup.add(sight);
+            gunGroup.add(detailPort);
+            gunGroup.add(grip);
+
+            gunGroup.position.set(0.2, -0.15, -0.35);
+            camera.add(gunGroup);
         }
 
         window.initGame = (mode) => {
@@ -204,44 +303,95 @@
             currentMode = mode; 
             score = 0; totalClicks = 0; hitsCount = 0; 
             timeLeft = modeSettings[mode].time;
-            
+
             occupiedSlots.clear();
+            if(dummyGroup) { scene.remove(dummyGroup); dummyGroup = null; }
             targets.forEach(t => scene.remove(t)); targets = [];
             
             document.getElementById('menu-overlay').style.display = 'none';
             document.getElementById('game-ui').style.opacity = '1';
             document.getElementById('exit-btn').style.display = 'block';
+
+            const isDummy = (currentMode === 'dummy');
+            document.getElementById('hp-divider').style.display = isDummy ? 'block' : 'none';
+            document.getElementById('hp-ui').style.display = isDummy ? 'block' : 'none';
             
-            // 處理 Trace 速度設定
-            if (currentMode === 'trace') totalClicks = 0; // Reset trace hits
+            if (currentMode === 'trace') totalClicks = 0; 
 
             isRunning = true;
             spawn();
+
+            if (window.innerWidth > 768) document.body.requestPointerLock();
         };
 
         window.exitGame = () => {
             isRunning = false;
+            if(document.pointerLockElement) document.exitPointerLock();
+            
             document.getElementById('menu-overlay').style.display = 'flex';
             document.getElementById('game-ui').style.opacity = '0';
             document.getElementById('exit-btn').style.display = 'none';
+            
+            if(dummyGroup) scene.remove(dummyGroup);
             targets.forEach(t => scene.remove(t)); targets = [];
+            updateScoreboardUI();
         };
 
+        function updateScoreboardUI() {
+            document.getElementById('hs-sixshot').innerText = highScores.sixshot;
+            document.getElementById('hs-3x3').innerText = highScores['3x3'];
+            document.getElementById('hs-trace').innerText = highScores.trace;
+            document.getElementById('hs-flicks').innerText = highScores.flicks;
+            document.getElementById('hs-dummy').innerText = highScores.dummy;
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && isRunning) exitGame();
+        });
+
         function spawn() {
-            const geo = new THREE.SphereGeometry(0.3, 32, 32);
-            const mat = new THREE.MeshBasicMaterial({ color: targetColorValue });
+            // 如果是 3x3 模式，將球體半徑放大 1.5 倍 (0.45)，否則為原本的 0.3
+            const radius = currentMode === '3x3' ? 0.45 : 0.3;
+            const geo = new THREE.SphereGeometry(radius, 32, 32);
+            const mat = new THREE.MeshStandardMaterial({ color: targetColorValue, roughness: 0.2 });
             
             if(currentMode === '3x3') {
                 for(let i=0; i<4; i++) create3x3Target(geo, mat);
             } else if(currentMode === 'trace') {
                 const t = new THREE.Mesh(geo, mat);
                 t.position.set(0, 2, -10);
-                t.userData = { vx: modeSettings['trace'].speed, initialY: 2 }; 
+                t.userData = { vx: modeSettings.trace.speed, vy: modeSettings.trace.speed * 0.7, initialY: 2 }; 
                 scene.add(t); targets.push(t);
+            } else if(currentMode === 'dummy') {
+                createDummy();
             } else {
                 const num = currentMode === 'sixshot' ? 6 : 1;
                 for(let i=0; i<num; i++) createRandomTarget(geo, mat);
             }
+        }
+
+        function createDummy() {
+            dummyGroup = new THREE.Group();
+            const mat = new THREE.MeshStandardMaterial({ color: targetColorValue, roughness: 0.4 });
+            
+            const headGeo = new THREE.SphereGeometry(0.3, 32, 32);
+            const head = new THREE.Mesh(headGeo, mat);
+            head.position.y = 1.7;
+            head.userData = { part: 'head', isDummy: true };
+
+            const bodyGeo = new THREE.CylinderGeometry(0.4, 0.4, 1.2, 32);
+            const body = new THREE.Mesh(bodyGeo, mat);
+            body.position.y = 0.9;
+            body.userData = { part: 'body', isDummy: true };
+
+            dummyGroup.add(head); dummyGroup.add(body);
+            dummyGroup.position.set(0, 0, -10);
+            scene.add(dummyGroup);
+
+            targets.push(head, body);
+            
+            currentDummyHP = modeSettings.dummy.hp;
+            document.getElementById('dummy-hp').innerText = currentDummyHP;
         }
 
         function create3x3Target(geo, mat) {
@@ -249,7 +399,8 @@
             do { slot = Math.floor(Math.random() * 9); } while (occupiedSlots.has(slot));
             occupiedSlots.add(slot);
             const t = new THREE.Mesh(geo, mat.clone());
-            t.position.set(((slot % 3) - 1) * 1.5, (Math.floor(slot / 3)) * 1.2 + 1, -8);
+            // 放大 3x3 網格距離，避免變大後的球互相重疊
+            t.position.set(((slot % 3) - 1) * 1.8, (Math.floor(slot / 3)) * 1.5 + 1, -8);
             t.userData.slot = slot;
             scene.add(t); targets.push(t);
         }
@@ -266,7 +417,7 @@
                 lastX = e.touches[e.touches.length-1].pageX; lastY = e.touches[e.touches.length-1].pageY;
             });
             renderer.domElement.addEventListener('touchmove', (e) => {
-                if(!isRunning || isEditMode) return;
+                if(!isRunning || isEditMode || hasPointerLock) return;
                 const t = e.touches[e.touches.length-1];
                 const dx = t.pageX - lastX; const dy = t.pageY - lastY;
                 if(Math.abs(dx) < 100) yaw -= dx * 0.0015 * sensitivity;
@@ -277,60 +428,108 @@
 
             const btn = document.getElementById('shoot-btn');
             btn.addEventListener('touchstart', (e) => {
-                e.stopPropagation(); // 關鍵：防止按按鈕時滑動視角
+                e.stopPropagation(); 
                 if(isEditMode) return; e.preventDefault();
                 if(currentMode !== 'trace') processHit();
             });
-            
             btn.addEventListener('touchmove', (e) => {
-                e.stopPropagation(); // 防止拖曳按鈕時視角亂動
+                e.stopPropagation(); 
                 if(!isEditMode) return; e.preventDefault();
                 const t = e.touches[0];
                 btn.style.left = (t.pageX - 40) + 'px'; btn.style.top = (t.pageY - 40) + 'px';
                 btn.style.right = 'auto'; btn.style.bottom = 'auto';
             });
+
+            document.body.addEventListener('click', (e) => {
+                if (isRunning && !isEditMode && e.target.tagName !== 'BUTTON' && e.target.id !== 'shoot-btn') {
+                    document.body.requestPointerLock();
+                }
+            });
+            
+            document.addEventListener('pointerlockchange', () => {
+                hasPointerLock = document.pointerLockElement === document.body;
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if(hasPointerLock && isRunning) {
+                    yaw -= e.movementX * 0.002 * sensitivity;
+                    pitch -= e.movementY * 0.002 * sensitivity;
+                    pitch = Math.max(-1.4, Math.min(1.4, pitch));
+                }
+            });
+
+            document.addEventListener('mousedown', (e) => {
+                if(hasPointerLock && isRunning && e.button === 0 && currentMode !== 'trace') {
+                    processHit();
+                }
+            });
         }
 
-        function processHit() {
+        function processHit(forceTarget = null) {
             totalClicks++;
-            let hitObj = null;
+            recoilTarget += 0.15; 
+            let hitObj = forceTarget;
 
-            // Hacks: Silent Aim 判定 (尋找螢幕 2D 圈內最近的目標)
-            if (hacks.silentAim) {
-                let closestDist = Infinity;
-                targets.forEach(t => {
-                    let vec = t.position.clone().project(camera);
-                    if (vec.z > 1) return; // 剔除鏡頭後方的目標
-                    let px = (vec.x * 0.5 + 0.5) * window.innerWidth;
-                    let py = -(vec.y * 0.5 - 0.5) * window.innerHeight;
-                    let dist = Math.hypot(px - window.innerWidth/2, py - window.innerHeight/2);
-                    if (dist <= hacks.fovSize && dist < closestDist) {
-                        closestDist = dist; hitObj = t;
-                    }
-                });
-            }
-
-            // 正常 Raycast 判定 (如果沒有觸發 Silent Aim)
             if (!hitObj) {
-                const ray = new THREE.Raycaster();
-                ray.setFromCamera(new THREE.Vector2(0,0), camera);
-                const hits = ray.intersectObjects(targets);
-                if (hits.length > 0) hitObj = hits[0].object;
+                if (hacks.silentAim) {
+                    let closestDist = Infinity;
+                    targets.forEach(t => {
+                        let vec = t.position.clone().project(camera);
+                        if (vec.z > 1) return;
+                        let px = (vec.x * 0.5 + 0.5) * window.innerWidth;
+                        let py = -(vec.y * 0.5 - 0.5) * window.innerHeight;
+                        let dist = Math.hypot(px - window.innerWidth/2, py - window.innerHeight/2);
+                        if (dist <= hacks.fovSize && dist < closestDist) {
+                            closestDist = dist; hitObj = t;
+                        }
+                    });
+                }
+
+                if (!hitObj) {
+                    const ray = new THREE.Raycaster();
+                    ray.setFromCamera(new THREE.Vector2(0,0), camera);
+                    const hits = ray.intersectObjects(targets);
+                    if (hits.length > 0) hitObj = hits[0].object;
+                }
             }
 
             if (hitObj) {
-                hitsCount++; score += 100;
-                if(currentMode === '3x3') {
-                    occupiedSlots.delete(hitObj.userData.slot);
-                    let newSlot;
-                    do { newSlot = Math.floor(Math.random() * 9); } while (occupiedSlots.has(newSlot));
-                    occupiedSlots.add(newSlot);
-                    hitObj.userData.slot = newSlot;
-                    hitObj.position.set(((newSlot % 3) - 1) * 1.5, (Math.floor(newSlot / 3)) * 1.2 + 1, -8);
-                } else {
-                    const range = currentMode === 'flicks' ? modeSettings['flicks'].range : 12;
-                    hitObj.position.set((Math.random() - 0.5) * range, Math.random()*4+1, -12);
+                hitsCount++; 
+
+                if (currentMode === 'dummy') {
+                    const isHead = hitObj.userData.part === 'head';
+                    const damage = isHead ? 70 * 1.5 : 70 * 1.0;
+                    score += isHead ? 50 : 20; 
+                    currentDummyHP -= damage; 
+
+                    if (currentDummyHP <= 0) {
+                        dummyGroup.position.set((Math.random() - 0.5) * 14, 0, -8 - Math.random() * 6);
+                        currentDummyHP = modeSettings.dummy.hp;
+                    }
+                    document.getElementById('dummy-hp').innerText = currentDummyHP;
+                } 
+                else {
+                    score += 100;
+                    if(currentMode === '3x3') {
+                        let newSlot;
+                        // 修復：先抽新位置，確保不會抽到任何目前還存在場上的球（包含剛被打掉的這顆）
+                        do { newSlot = Math.floor(Math.random() * 9); } while (occupiedSlots.has(newSlot));
+                        
+                        // 找到完全空的新位置後，才將舊位置從集合中移除
+                        occupiedSlots.delete(hitObj.userData.slot);
+                        occupiedSlots.add(newSlot);
+                        
+                        hitObj.userData.slot = newSlot;
+                        // 對應放大的網格距離
+                        hitObj.position.set(((newSlot % 3) - 1) * 1.8, (Math.floor(newSlot / 3)) * 1.5 + 1, -8);
+                    } else {
+                        const range = currentMode === 'flicks' ? modeSettings['flicks'].range : 12;
+                        hitObj.position.set((Math.random() - 0.5) * range, Math.random()*4+1, -12);
+                    }
                 }
+
+                hitObj.material.color.setHex(0xff0000);
+                setTimeout(() => { if(hitObj && hitObj.material) hitObj.material.color.copy(targetColorValue); }, 100);
             }
             updateUI();
         }
@@ -341,7 +540,6 @@
             document.getElementById('acc').innerText = acc + "%";
         }
 
-        // --- 設定面板邏輯 ---
         const sensSlider = document.getElementById('sens-input');
         const sensText = document.getElementById('sens-display');
         sensSlider.oninput = () => { sensText.innerText = parseFloat(sensSlider.value).toFixed(2); };
@@ -351,6 +549,10 @@
             const bgCol = document.getElementById('color-bg').value;
             scene.background = new THREE.Color(bgCol);
             document.documentElement.style.setProperty('--bg', bgCol);
+            
+            const crossColor = document.getElementById('color-crosshair').value;
+            document.documentElement.style.setProperty('--cross-color', crossColor);
+
             targetColorValue = new THREE.Color(document.getElementById('color-target').value);
             
             const style = document.getElementById('ch-style').value;
@@ -365,11 +567,11 @@
         };
 
         document.getElementById('settings-trigger').onclick = () => {
+            if(hasPointerLock) document.exitPointerLock();
             sensSlider.value = sensitivity; sensText.innerText = sensitivity.toFixed(2);
             document.getElementById('settings-modal').style.display='block';
         };
 
-        // --- Hacks UI 邏輯 ---
         const fovCircle = document.getElementById('fov-circle');
         document.getElementById('toggle-silent-btn').onclick = function() {
             hacks.silentAim = !hacks.silentAim;
@@ -386,16 +588,52 @@
             fovCircle.style.height = (hacks.fovSize * 2) + 'px';
         };
 
-        document.getElementById('toggle-lock-btn').onclick = function() {
+        const smoothSlider = document.getElementById('smooth-input');
+        const lockBtn = document.getElementById('toggle-lock-btn');
+        lockBtn.onclick = function() {
+            if (hacks.aimAssist) return; 
             hacks.lock = !hacks.lock;
             this.innerText = `Lock: ${hacks.lock ? 'ON' : 'OFF'}`;
             this.classList.toggle('active', hacks.lock);
-            document.getElementById('smoothness-container').style.display = hacks.lock ? 'block' : 'none';
+            document.getElementById('lock-settings-container').style.display = hacks.lock ? 'block' : 'none';
         };
-        const smoothSlider = document.getElementById('smooth-input');
+
         smoothSlider.oninput = () => {
             hacks.smoothness = parseFloat(smoothSlider.value);
             document.getElementById('smooth-display').innerText = hacks.smoothness.toFixed(1);
+        };
+
+        // Dummy Aim部位切換邏輯
+        const dummyAimBtn = document.getElementById('toggle-dummy-aim-btn');
+        dummyAimBtn.onclick = function() {
+            hacks.dummyAimPart = hacks.dummyAimPart === 'head' ? 'body' : 'head';
+            this.innerText = `Dummy Aim: ${hacks.dummyAimPart.toUpperCase()}`;
+        };
+
+        document.getElementById('toggle-aimassist-btn').onclick = function() {
+            hacks.aimAssist = !hacks.aimAssist;
+            this.innerText = `Aim Assist: ${hacks.aimAssist ? 'ON' : 'OFF'}`;
+            this.classList.toggle('active', hacks.aimAssist);
+
+            if(hacks.aimAssist) {
+                hacks.lock = true;
+                lockBtn.innerText = "Lock: ON";
+                lockBtn.classList.add('active');
+                document.getElementById('lock-settings-container').style.display = 'block';
+                
+                hacks.smoothness = 0.7;
+                smoothSlider.value = 0.7;
+                document.getElementById('smooth-display').innerText = "0.7";
+                smoothSlider.disabled = true;
+            } else {
+                smoothSlider.disabled = false;
+            }
+        };
+
+        document.getElementById('toggle-autoshoot-btn').onclick = function() {
+            hacks.autoShoot = !hacks.autoShoot;
+            this.innerText = `Auto Shoot: ${hacks.autoShoot ? 'ON' : 'OFF'}`;
+            this.classList.toggle('active', hacks.autoShoot);
         };
 
         document.getElementById('edit-layout-btn').onclick = function() {
@@ -404,7 +642,6 @@
             document.getElementById('shoot-btn').classList.toggle('edit-mode', isEditMode);
         };
 
-        // --- 模式獨立設定邏輯 ---
         window.openModeSettings = (mode) => {
             editingMode = mode;
             document.getElementById('ms-title').innerText = mode.toUpperCase() + " SETTINGS";
@@ -416,14 +653,22 @@
 
             document.getElementById('ms-trace-wrap').style.display = mode === 'trace' ? 'block' : 'none';
             document.getElementById('ms-flicks-wrap').style.display = mode === 'flicks' ? 'block' : 'none';
+            document.getElementById('ms-dummy-wrap').style.display = mode === 'dummy' ? 'block' : 'none';
             
             if(mode === 'trace') {
                 document.getElementById('ms-speed').value = modeSettings.trace.speed;
                 document.getElementById('ms-speed-val').innerText = modeSettings.trace.speed;
+                const randBtn = document.getElementById('ms-trace-rand-btn');
+                randBtn.innerText = `Random Move: ${modeSettings.trace.randomMove ? 'ON' : 'OFF'}`;
+                randBtn.className = modeSettings.trace.randomMove ? 'line-btn active' : 'line-btn';
             }
             if(mode === 'flicks') {
                 document.getElementById('ms-range').value = modeSettings.flicks.range;
                 document.getElementById('ms-range-val').innerText = modeSettings.flicks.range;
+            }
+            if(mode === 'dummy') {
+                document.getElementById('ms-dummy-hp').value = modeSettings.dummy.hp;
+                document.getElementById('ms-dummy-hp-val').innerText = modeSettings.dummy.hp;
             }
             document.getElementById('mode-settings-modal').style.display = 'block';
         };
@@ -433,18 +678,25 @@
             this.innerText = `Show Accuracy: ${modeSettings[editingMode].showAcc ? 'ON' : 'OFF'}`;
             this.className = modeSettings[editingMode].showAcc ? 'line-btn active' : 'line-btn';
         };
+        
+        document.getElementById('ms-trace-rand-btn').onclick = function() {
+            modeSettings.trace.randomMove = !modeSettings.trace.randomMove;
+            this.innerText = `Random Move: ${modeSettings.trace.randomMove ? 'ON' : 'OFF'}`;
+            this.className = modeSettings.trace.randomMove ? 'line-btn active' : 'line-btn';
+        };
 
         document.getElementById('ms-speed').oninput = function() { document.getElementById('ms-speed-val').innerText = this.value; };
         document.getElementById('ms-range').oninput = function() { document.getElementById('ms-range-val').innerText = this.value; };
+        document.getElementById('ms-dummy-hp').oninput = function() { document.getElementById('ms-dummy-hp-val').innerText = this.value; };
 
         window.saveModeSettings = () => {
             modeSettings[editingMode].time = parseInt(document.getElementById('ms-time').value) || 30;
             if(editingMode === 'trace') modeSettings.trace.speed = parseFloat(document.getElementById('ms-speed').value);
             if(editingMode === 'flicks') modeSettings.flicks.range = parseInt(document.getElementById('ms-range').value);
+            if(editingMode === 'dummy') modeSettings.dummy.hp = parseInt(document.getElementById('ms-dummy-hp').value);
             document.getElementById('mode-settings-modal').style.display = 'none';
         };
 
-        // --- 算視角平滑過渡用 ---
         function deltaAngle(current, target) {
             let diff = (target - current) % (Math.PI * 2);
             if (diff > Math.PI) diff -= Math.PI * 2;
@@ -454,14 +706,29 @@
 
         function animate() {
             requestAnimationFrame(animate);
-            if(!isRunning) return;
             const dt = clock.getDelta();
+
+            recoilTarget = THREE.MathUtils.lerp(recoilTarget, 0, dt * 15);
+            recoilCurrent = THREE.MathUtils.lerp(recoilCurrent, recoilTarget, dt * 25);
+            if(gunGroup) {
+                gunGroup.rotation.x = recoilCurrent; 
+                gunGroup.position.z = -0.35 + recoilCurrent * 0.4;
+            }
+
+            if(!isRunning) return;
             timeLeft -= dt;
             
             if(timeLeft <= 0) {
                 const acc = totalClicks === 0 ? 100 : Math.round((hitsCount/totalClicks)*100);
                 let msg = `Time's Up!\nScore: ${score}`;
                 if (modeSettings[currentMode].showAcc) msg += `\nAccuracy: ${acc}%`;
+                
+                if (score > highScores[currentMode]) {
+                    highScores[currentMode] = score;
+                    localStorage.setItem('bootcampHighScores', JSON.stringify(highScores));
+                    msg = `🎉 NEW HIGH SCORE! 🎉\n` + msg;
+                }
+                
                 alert(msg);
                 exitGame();
                 return;
@@ -469,43 +736,88 @@
             
             document.getElementById('timer').innerText = Math.max(0, timeLeft).toFixed(1);
 
-            // Hacks: Lock (Aimbot) 運算
+            if (hacks.autoShoot && currentMode !== 'trace') {
+                if (autoShootCooldown <= 0) {
+                    let autoHitTarget = null;
+                    const ray = new THREE.Raycaster();
+                    ray.setFromCamera(new THREE.Vector2(0,0), camera);
+                    const hits = ray.intersectObjects(targets);
+                    if (hits.length > 0) autoHitTarget = hits[0].object;
+
+                    if (!autoHitTarget && hacks.silentAim) {
+                        let closestDist = Infinity;
+                        targets.forEach(t => {
+                            let vec = t.position.clone().project(camera);
+                            if (vec.z > 1) return;
+                            let px = (vec.x * 0.5 + 0.5) * window.innerWidth;
+                            let py = -(vec.y * 0.5 - 0.5) * window.innerHeight;
+                            let dist = Math.hypot(px - window.innerWidth/2, py - window.innerHeight/2);
+                            if (dist <= hacks.fovSize && dist < closestDist) {
+                                closestDist = dist; autoHitTarget = t;
+                            }
+                        });
+                    }
+
+                    if (autoHitTarget) {
+                        processHit(autoHitTarget);
+                        autoShootCooldown = 0.05;  // AutoShoot 極速連發
+                    }
+                } else {
+                    autoShootCooldown -= dt;
+                }
+            }
+
             if (hacks.lock && targets.length > 0) {
-                // 尋找最靠近畫面中心的目標 (或直接鎖定第一個，這裡鎖定螢幕中心距離最近的)
-                let target = targets[0];
+                let target = null;
                 let closestDist = Infinity;
+                
                 targets.forEach(t => {
+                    if (currentMode === 'dummy' && t.userData.part !== hacks.dummyAimPart) return;
+                    
                     let vec = t.position.clone().project(camera);
                     if (vec.z > 1) return;
                     let dist = Math.hypot(vec.x, vec.y);
                     if (dist < closestDist) { closestDist = dist; target = t; }
                 });
 
-                let dx = target.position.x - camera.position.x;
-                let dy = target.position.y - camera.position.y;
-                let dz = target.position.z - camera.position.z;
-                let dist2D = Math.hypot(dx, dz);
-                let targetYaw = Math.atan2(-dx, -dz);
-                let targetPitch = Math.atan2(dy, dist2D);
+                if (target) {
+                    let targetWorldPos = new THREE.Vector3();
+                    target.getWorldPosition(targetWorldPos);
 
-                yaw += deltaAngle(yaw, targetYaw) * dt * hacks.smoothness;
-                pitch += deltaAngle(pitch, targetPitch) * dt * hacks.smoothness;
-                pitch = Math.max(-1.4, Math.min(1.4, pitch)); // 限制抬頭低頭
+                    let dx = targetWorldPos.x - camera.position.x;
+                    let dy = targetWorldPos.y - camera.position.y;
+                    let dz = targetWorldPos.z - camera.position.z;
+                    let dist2D = Math.hypot(dx, dz);
+                    let targetYaw = Math.atan2(-dx, -dz);
+                    let targetPitch = Math.atan2(dy, dist2D);
+
+                    yaw += deltaAngle(yaw, targetYaw) * dt * hacks.smoothness;
+                    pitch += deltaAngle(pitch, targetPitch) * dt * hacks.smoothness;
+                    pitch = Math.max(-1.4, Math.min(1.4, pitch));
+                }
             }
 
             camera.quaternion.setFromEuler(new THREE.Euler(pitch, yaw, 0, 'YXZ'));
 
-            // Trace 模式的目標移動邏輯
             if(currentMode === 'trace' && targets.length > 0) {
                 const t = targets[0];
-                t.position.x += t.userData.vx;
-                t.position.y = t.userData.initialY; 
-                if(Math.abs(t.position.x) > 7) t.userData.vx *= -1;
+                
+                if (modeSettings.trace.randomMove) {
+                    if (Math.random() < 0.02) t.userData.vx = (Math.random() > 0.5 ? 1 : -1) * modeSettings.trace.speed;
+                    if (Math.random() < 0.02) t.userData.vy = (Math.random() > 0.5 ? 1 : -1) * modeSettings.trace.speed * 0.7;
+                    t.position.x += t.userData.vx;
+                    t.position.y += t.userData.vy;
+                    if(Math.abs(t.position.x) > 7) t.userData.vx *= -1;
+                    if(t.position.y > 5 || t.position.y < 0.5) t.userData.vy *= -1;
+                } else {
+                    t.position.x += t.userData.vx;
+                    t.position.y = t.userData.initialY; 
+                    if(Math.abs(t.position.x) > 7) t.userData.vx *= -1;
+                }
                 
                 totalClicks += 1; 
                 let hitTraced = false;
 
-                // 優先使用 Silent Aim 判定 Trace
                 if (hacks.silentAim) {
                     let vec = t.position.clone().project(camera);
                     if (vec.z <= 1) {
@@ -526,6 +838,7 @@
                 if(hitTraced) {
                     hitsCount++; score += 5;
                     t.material.color.setHex(0xff00ff); 
+                    recoilTarget += 0.02; 
                 } else {
                     t.material.color.copy(targetColorValue);
                 }
